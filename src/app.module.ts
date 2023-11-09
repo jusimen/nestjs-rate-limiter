@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { ProductsModule } from './products/products.module';
 import { RateLimiterMiddleware } from './common/middleware/rate-limiter.middleware';
+import { UtilsModule } from './common/utils/utils.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RateLimiterMiddleware } from './common/middleware/rate-limiter.middlewa
     AuthModule,
     AccountsModule,
     ProductsModule,
+    UtilsModule,
   ],
 })
 export class AppModule implements NestModule {
