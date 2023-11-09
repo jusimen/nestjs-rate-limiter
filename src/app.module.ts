@@ -1,6 +1,4 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -9,6 +7,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { ProductsModule } from './products/products.module';
+import { RateLimiterMiddleware } from './common/middleware/rate-limiter.middleware';
 
 @Module({
   imports: [
@@ -29,7 +28,9 @@ import { ProductsModule } from './products/products.module';
     AccountsModule,
     ProductsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RateLimiterMiddleware).forRoutes('*');
+  }
+}
