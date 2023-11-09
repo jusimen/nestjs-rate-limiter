@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const AccountsSchema = new mongoose.Schema({
+export const ProductsSchema = new mongoose.Schema({
   accountName: {
     type: String,
   },
@@ -15,7 +15,7 @@ export const AccountsSchema = new mongoose.Schema({
   },
 });
 
-export interface Accounts extends mongoose.Document {
+export interface Products extends mongoose.Document {
   accountName: string;
   accountNumber: string;
   amount: string;

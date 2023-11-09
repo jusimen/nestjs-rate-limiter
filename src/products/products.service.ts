@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Accounts } from './accounts.model';
+import { Products } from './products.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 @Injectable()
-export class AccountsService {
+export class ProductsService {
   constructor(
-    @InjectModel('Accounts') private readonly accountModel: Model<Accounts>,
+    @InjectModel('Products') private readonly accountModel: Model<Products>,
   ) {}
 
-  create(createAccountDto: Accounts) {
+  create(createAccountDto: Products) {
     return this.accountModel.create(createAccountDto);
   }
 
@@ -21,7 +21,7 @@ export class AccountsService {
     return this.accountModel.findById(id);
   }
 
-  update(id: string, updateAccountDto: Accounts) {
+  update(id: string, updateAccountDto: Products) {
     return this.accountModel.updateOne({ _id: id }, updateAccountDto);
   }
 

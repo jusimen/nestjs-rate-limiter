@@ -6,10 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-yet';
-import { PrivateRouteModule } from './private-route/private-route.module';
-import { PublicRouteModule } from './public-route/public-route.module';
 import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -26,10 +25,9 @@ import { AccountsModule } from './accounts/accounts.module';
         port: parseInt(process.env.REDIS_PORT),
       },
     }),
-    PrivateRouteModule,
-    PublicRouteModule,
     AuthModule,
     AccountsModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
