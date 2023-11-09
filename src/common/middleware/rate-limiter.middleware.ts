@@ -3,21 +3,40 @@ import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { RedisCache } from 'cache-manager-redis-yet';
 import { Request, Response, NextFunction } from 'express';
 import { RedisClientType } from 'redis';
+import ms, { StringValue } from 'ms';
 
 @Injectable()
 export class RateLimiterMiddleware implements NestMiddleware {
-  private readonly rateLimitTime: number;
+  private rateLimitTime: number = 1 * 30 * 1000; // 1 hour
   private readonly redis: RedisClientType;
 
   constructor(@Inject(CACHE_MANAGER) private cacheManager: RedisCache) {
-    this.rateLimitTime = 1 * 60 * 60 * 1000; // 1 hour
+    this.rateLimitTime = this.rateLimitTime;
     this.redis = this.cacheManager.store.client;
   }
 
   use(req: Request, res: Response, next: NextFunction) {
-    const ip = req.ip;
+    const ip = req.socket.remoteAddress;
+    const token = this.extractTokenFromHeader(req);
 
-    this.slidingWindowRateLimiter(ip, 10, 1);
+    //Date Now, readable
+    console.log('now', new Date(Date.now()).toLocaleString());
+
+    const tokenLimiter = this.slidingWindowRateLimiter(
+      token,
+      parseInt(process.env.RATE_LIMIT_TOKEN),
+      this.rateLimitTime,
+    );
+
+    const ipLimiter = this.slidingWindowRateLimiter(
+      ip,
+      parseInt(process.env.RATE_LIMIT_IP),
+      this.rateLimitTime,
+    );
+
+    if (!tokenLimiter || !ipLimiter) {
+      return res.status(429).send('Too Many Requests');
+    }
 
     next();
   }
@@ -30,33 +49,25 @@ export class RateLimiterMiddleware implements NestMiddleware {
   private async slidingWindowRateLimiter(
     key: string,
     limit: number,
-    windowSize: number,
-  ): Promise<boolean> {
-    const windowSizeInSeconds = windowSize * 60; // Convert minutes to seconds
+    window: number,
+  ) {
+    const now = Date.now();
+    const windowStart = now - window;
+    const requestsMade = await this.redis.zCount(key, windowStart, now);
 
-    const val = parseInt(await this.redis.get(key));
-    console.log('val: ', val);
+    console.log('requestsMade', requestsMade);
 
-    if (!val) {
-      // If the key doesn't exist, create it and set it to 1
-      await this.redis
-        .multi()
-        .set(key, 1)
-        .expire(key, windowSizeInSeconds)
-        .exec();
-    } else {
-      // If the key exists, increment it
-      await this.redis.incr(key);
+    if (requestsMade <= limit) {
+      await this.redis.zAdd(key, { score: now, value: `${now}` });
+      await this.redis.zRemRangeByScore(key, '-inf', windowStart);
     }
 
-    if (val > limit) {
-      console.log('Rate limit exceeded');
+    //Time left to be able to make a request
+    //current timestamp - Lowest Timestamp in the sorted set + (window - now)
+    const lowestTimestamp = await this.redis.zRangeWithScores(key, 0, 1);
+    const timeLeft = lowestTimestamp[0].score + (window - now);
 
-      //ttl
-      console.log('TTL: ', await this.redis.ttl(key));
-
-      return false;
-    }
+    throw new Error('Too Many Requests. Try again in ' + ms(timeLeft));
 
     return false;
   }
