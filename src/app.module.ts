@@ -9,6 +9,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { PrivateRouteModule } from './private-route/private-route.module';
 import { PublicRouteModule } from './public-route/public-route.module';
 import { AuthModule } from './auth/auth.module';
+import { AccountsModule } from './accounts/accounts.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from './auth/auth.module';
     PrivateRouteModule,
     PublicRouteModule,
     AuthModule,
+    AccountsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

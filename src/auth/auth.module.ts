@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Session', schema: SessionSchema }]),
+    MongooseModule.forFeature([{ name: 'session', schema: SessionSchema }]),
   ],
   providers: [AuthService],
   exports: [AuthService],

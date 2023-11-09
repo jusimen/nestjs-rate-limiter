@@ -7,8 +7,9 @@ async function seed() {
   const client = await MongoClient.connect(process.env.DATABASE_URL);
   const db = client.db(process.env.DATABASE_NAME);
 
+  db.dropDatabase();
+
   console.log('🌱 Seeding Sessions...');
-  await db.collection('sessions').deleteMany({});
   await db.collection('sessions').insertOne({
     token: process.env.SESSION_ID,
   });
@@ -18,10 +19,9 @@ async function seed() {
     });
   }
 
-  console.log('🌱 Seeding Private Routes...');
-  await db.collection('private-route').deleteMany({});
+  console.log('🌱 Seeding Accounts...');
   for (let i = 0; i < 10; i++) {
-    await db.collection('private-route').insertOne({
+    await db.collection('accounts').insertOne({
       accountName: faker.finance.accountName(),
       accountNumber: faker.finance.accountNumber(),
       amount: faker.finance.amount(),
@@ -29,10 +29,9 @@ async function seed() {
     });
   }
 
-  console.log('🌱 Seeding Public Routes...');
-  await db.collection('public-route').deleteMany({});
+  console.log('🌱 Seeding Products...');
   for (let i = 0; i < 10; i++) {
-    await db.collection('public-route').insertOne({
+    await db.collection('products').insertOne({
       name: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       price: faker.commerce.price(),

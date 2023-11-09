@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PublicRouteService } from './public-route.service';
+import { AccountsService } from './accounts.service';
 
-describe('PublicRouteService', () => {
-  let service: PublicRouteService;
+describe('AccountsService', () => {
+  let service: AccountsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PublicRouteService],
+      providers: [AccountsService],
     }).compile();
 
-    service = module.get<PublicRouteService>(PublicRouteService);
+    service = module.get<AccountsService>(AccountsService);
   });
 
   it('should be defined', () => {
