@@ -4,9 +4,9 @@ import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-yet';
-import { AuthModule } from './auth/auth.module';
-import { AccountsModule } from './accounts/accounts.module';
-import { ProductsModule } from './products/products.module';
+import { AuthModule } from './routes/auth/auth.module';
+import { AccountsModule } from './routes/accounts/accounts.module';
+import { ProductsModule } from './routes/products/products.module';
 import { RateLimiterMiddleware } from './common/middleware/rate-limiter.middleware';
 import { UtilsModule } from './common/utils/utils.module';
 

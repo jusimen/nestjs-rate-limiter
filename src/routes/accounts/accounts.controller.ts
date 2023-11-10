@@ -9,8 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { AuthGuard } from 'src/auth/auth.guard';
 import { Accounts } from './accounts.model';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('accounts')
 @UseGuards(AuthGuard)

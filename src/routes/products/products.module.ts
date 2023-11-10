@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from 'src/routes/auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsSchema } from './products.model';
 
