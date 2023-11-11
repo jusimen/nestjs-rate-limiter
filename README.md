@@ -1,73 +1,73 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Outvio Test Task
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This project provides a Docker Compose configuration for running a Nest.js application alongside MongoDB, MongoDB Express, and Redis containers.
 
-## Installation
+## Prerequisites
+
+Before you start using this Docker Compose setup, you need to have the following software installed on your system:
+
+- Docker: [Install Docker](https://docs.docker.com/get-docker/)
+- Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
+
+## Usage
+
+1. Build and start the containers using Docker Compose:
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   The `-d` flag runs the containers in the background.
+
+2. Seed the database with some test data:
+
+   ```bash
+   docker-compose exec app npm run db:seed
+   ```
+
+3. Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to access the Nest.js application.
+
+4. Open your browser and navigate to [http://localhost:8081](http://localhost:8081) to access MongoDB Express.
+
+   Username: `admin`<br>
+   Password: `pass`
+
+5. Stop and remove the containers:
+
+   ```bash
+   docker-compose down
+   ```
+
+## Configuration
+
+The `docker-compose.yaml` file defines the following services:
+
+- **app**: This service runs the Nest.js application and maps port 3000 on your host to port 3000 in the container. It also mounts your application code and node_modules as volumes for development convenience. It depends on the `mongodb` and `redis` services.
+
+- **mongodb**: This service uses the latest MongoDB image and maps port 27017 on your host to port 27017 in the container.
+
+- **mongodb-express**: This service provides a web-based MongoDB management interface (MongoDB Express) and maps port 8081 on your host to port 8081 in the container. It's configured to connect to the `mongodb` service using the provided credentials.
+
+- **redis**: This service uses the latest Redis image and maps port 6379 on your host to port 6379 in the container.
+
+## Environment Variables
+
+You can customize the configuration by modifying a `.env` file with your own environment variables.:
+
+- `DATABASE_URL`: The MongoDB connection URI. Default is `mongodb://mongodb:27017`.
+- `DATABASE_NAME`: The name of the MongoDB database. Default is `my_db`.
+- `REDIS_HOST`: The hostname of the Redis server. Default is `localhost`.
+- `REDIS_PORT`: The port on which Redis is running. Default is `6379`.
+- `SESSION_ID`: A Session ID for testing purposes. This will ensure it will always be added when seeding the database.
+- `RATE_LIMIT_IP`: Tokens per IP address. Default is `100`.
+- `RATE_LIMIT_SESSION`: Tokens per session. Default is `200`.
+
+## Maintenance
+
+To stop and remove the containers, use the following command:
 
 ```bash
-$ yarn install
+docker-compose down
 ```
-
-## Running the app
-
-```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
