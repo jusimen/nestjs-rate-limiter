@@ -6,9 +6,17 @@ import { RedisClientType } from 'redis';
 import { UtilsService } from '../utils/utils.service';
 import { RateLimiter } from './rate-limiter';
 
+export const routeWeight: Record<string, number> = {
+  '/accounts': 1,
+  '/products': 2,
+  '/orders': 3,
+  '/users': 4,
+  '/images': 5,
+};
+
 @Injectable()
 export class RateLimiterMiddleware implements NestMiddleware {
-  private rateLimitTime: number = 60 * 60 * 1000; // 1 hour
+  private rateLimitTime: number = 1 * 30 * 1000; // 1 hour
   private readonly redis: RedisClientType;
 
   constructor(
@@ -21,13 +29,16 @@ export class RateLimiterMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const ip = req.socket.remoteAddress;
-    const token = this.extractTokenFromHeader(req);
+    const token = this.utils.extractSessionFromCookie(req);
+    const route = req.baseUrl;
+    routeWeight[route] = routeWeight[route] || 1;
 
     if (token) {
       const tokenLimiter: RateLimiter = await this.slidingWindowRateLimiter(
         token,
         parseInt(process.env.RATE_LIMIT_TOKEN),
         this.rateLimitTime,
+        routeWeight[route],
       );
 
       if (tokenLimiter.exceedLimit) {
@@ -41,6 +52,7 @@ export class RateLimiterMiddleware implements NestMiddleware {
       ip,
       parseInt(process.env.RATE_LIMIT_IP),
       this.rateLimitTime,
+      routeWeight[route],
     );
 
     if (ipLimiter.exceedLimit) {
@@ -52,23 +64,23 @@ export class RateLimiterMiddleware implements NestMiddleware {
     next();
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.cookie?.split('=') || [];
-    return type === 'sessionId' ? token : undefined;
-  }
-
   private async slidingWindowRateLimiter(
     key: string,
     limit: number,
     window: number,
+    weight: number = 1,
   ): Promise<RateLimiter> {
     const now = Date.now();
     const windowStart = now - window;
     const requestsMade = await this.redis.zCount(key, windowStart, now);
+    const requestsWeight = requestsMade * weight;
 
-    if (requestsMade <= limit) {
+    //Remove all the requests that are outside the window of time
+    await this.redis.zRemRangeByScore(key, '-inf', windowStart);
+
+    if (requestsWeight <= limit) {
+      //Add the new request to the sorted set
       await this.redis.zAdd(key, { score: now, value: `${now}` });
-      await this.redis.zRemRangeByScore(key, '-inf', windowStart);
 
       return {
         exceedLimit: false,

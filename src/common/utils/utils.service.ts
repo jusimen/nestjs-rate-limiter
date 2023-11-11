@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Request } from 'express';
 
 @Injectable()
 export class UtilsService {
@@ -12,5 +13,10 @@ export class UtilsService {
     const formattedSeconds = String(remainingSeconds).padStart(2, '0');
 
     return `${formattedMinutes}:${formattedSeconds}s`;
+  }
+
+  extractSessionFromCookie(request: Request): string | undefined {
+    const [type, token] = request.headers.cookie?.split('=') || [];
+    return type === 'sessionId' ? token : undefined;
   }
 }
