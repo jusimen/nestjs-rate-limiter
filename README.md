@@ -1,8 +1,16 @@
 # Outvio Test Task
 
-## Description
+This repository contains a Nest.js application that uses MongoDB and Redis. It's configured to run in Docker containers using Docker Compose.
 
-This project provides a Docker Compose configuration for running a Nest.js application alongside MongoDB, MongoDB Express, and Redis containers.
+It was created as a test task for Outvio. The task was to create a simple API that with the following requirements:
+
+- Create a basic authentication middleware.
+- Create at least one endpoint that is protected by the authentication middleware.
+- Create at least one endpoint that is public.
+- Create a rate limiter middleware.
+  -  Set a rate limit by token to 200 req/hour
+  -  Set a rate limit by ip to 100 req/hour
+  -  Create a different weight of request rate for every URL
 
 ## Prerequisites
 
@@ -21,53 +29,46 @@ Before you start using this Docker Compose setup, you need to have the following
 
    The `-d` flag runs the containers in the background.
 
-2. Seed the database with some test data:
+2. Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to access the Nest.js application.
 
-   ```bash
-   docker-compose exec app npm run db:seed
-   ```
-
-3. Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to access the Nest.js application.
-
-4. Open your browser and navigate to [http://localhost:8081](http://localhost:8081) to access MongoDB Express.
+3. Open your browser and navigate to [http://localhost:8081](http://localhost:8081) to access MongoDB Express.
 
    Username: `admin`<br>
    Password: `pass`
 
-5. Stop and remove the containers:
+4. Stop and remove the containers:
 
    ```bash
    docker-compose down
    ```
 
-## Configuration
+## Task Explanation
+### Authentication Middleware
+The authentication middleware is implemented in the `AuthGuard` class.
 
-The `docker-compose.yaml` file defines the following services:
+It checks if a `sessionId` cookie is present in the request. If it is, it tries to find a session with the corresponding `sessionId` in the database.
 
-- **app**: This service runs the Nest.js application and maps port 3000 on your host to port 3000 in the container. It also mounts your application code and node_modules as volumes for development convenience. It depends on the `mongodb` and `redis` services.
+If the session is found, the request is allowed to continue. Otherwise, the request is rejected with a `401 Unauthorized` error.
 
-- **mongodb**: This service uses the latest MongoDB image and maps port 27017 on your host to port 27017 in the container.
+### Protected Endpoint
+The `/accounts` endpoint is a protected, the `AuthGuard` class is used as a Nest.js guard. It's applied to the endpoint using the `UseGuards` decorator.
 
-- **mongodb-express**: This service provides a web-based MongoDB management interface (MongoDB Express) and maps port 8081 on your host to port 8081 in the container. It's configured to connect to the `mongodb` service using the provided credentials.
+### Public Endpoint
+The `/products` endpoint is public. It's not protected by the `AuthGuard` class.
 
-- **redis**: This service uses the latest Redis image and maps port 6379 on your host to port 6379 in the container.
+### Rate Limiter Middleware
+The rate limiter middleware is implemented in the `RateLimiterMiddleware` class.
 
-## Environment Variables
+It uses either a `sessionId` cookie or the client's IP address to identify the client. If the session ID is present in the request, it's used along with the client's IP address. Otherwise, only the client's IP address is used.
 
-You can customize the configuration by modifying a `.env` file with your own environment variables.:
+It uses a Sliding Window algorithm to track the number of requests made by a client. The algorithm is implemented in the `slidingWindowRateLimiter` function.
 
-- `DATABASE_URL`: The MongoDB connection URI. Default is `mongodb://mongodb:27017`.
-- `DATABASE_NAME`: The name of the MongoDB database. Default is `my_db`.
-- `REDIS_HOST`: The hostname of the Redis server. Default is `localhost`.
-- `REDIS_PORT`: The port on which Redis is running. Default is `6379`.
-- `SESSION_ID`: A Session ID for testing purposes. This will ensure it will always be added when seeding the database.
-- `RATE_LIMIT_IP`: Tokens per IP address. Default is `100`.
-- `RATE_LIMIT_SESSION`: Tokens per session. Default is `200`.
+#### Sliding Window Algorithm
+The algorithm uses a Redis sorted set to store the timestamps of the requests made by a client. The timestamps are stored as the score of the set elements.
 
-## Maintenance
+When a request is made, the algorithm does the following:
 
-To stop and remove the containers, use the following command:
-
-```bash
-docker-compose down
-```
+1. Adds the current timestamp to the sorted set.
+2. Removes all timestamps that are older than the current timestamp minus the window size.
+3. Counts the number of timestamps in the sorted set.
+4. If the number of timestamps is greater than the allowed number of requests, the request is rejected with a `429 Too Many Requests` error.
