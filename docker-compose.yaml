@@ -10,7 +10,17 @@ services:
       - /app/node_modules
     depends_on:
       - mongodb
+      - mongodb-express
       - redis
+    environment:
+      DATABASE_URL: mongodb://mongodb:27017
+      DATABASE_NAME: my_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SESSION_ID: 5fa87940-fc27-4c8d-8c6a-92f69e7f3139
+      RATE_LIMIT_IP: 100
+      RATE_LIMIT_TOKEN: 200
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
