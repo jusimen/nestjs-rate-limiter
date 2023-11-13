@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Outvio Test Task</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background: #f4f4f4;
+        color: #333;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        color: #333;
+    }
+
+    h1 {
+        margin-top: 0;
+    }
+
+    a {
+        color: #0275d8;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    ul,
+    ol {
+        margin-left: 20px;
+    }
+
+    code {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #eee;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 90%;
+    }
+
+    pre {
+        background-color: #eee;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+
+    pre code {
+        background: none;
+        padding: 0;
+    }
+
+    .container {
+        width: 80%;
+        margin: 0 auto;
+        overflow: hidden;
+        padding: 0 20px;
+    }
+
+    .box {
+        background: #fff;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="box">
+            <h1>Outvio Test Task</h1>
+            <p>This repository contains a Nest.js application that uses MongoDB and Redis. It's configured to run in
+                Docker
+                containers using Docker Compose.</p>
+            <p>It was created as a test task for Outvio. The task was to create a simple API that with the following
+                requirements:</p>
+            <ul>
+                <li>Create a basic authentication middleware.</li>
+                <li>Create at least one endpoint that is protected by the authentication middleware.</li>
+                <li>Create at least one endpoint that is public.</li>
+                <li>Create a rate limiter middleware.
+                    <ul>
+                        <li>Set a rate limit by token to 200 req/hour</li>
+                        <li>Set a rate limit by ip to 100 req/hour</li>
+                        <li>Create a different weight of request rate for every URL</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h2>Prerequisites</h2>
+            <p>Before you start using this Docker Compose setup, you need to have the following software installed on
+                your
+                system:</p>
+            <ul>
+                <li>Docker: <a href="https://docs.docker.com/get-docker/">Install Docker</a></li>
+                <li>Docker Compose: <a href="https://docs.docker.com/compose/install/">Install Docker Compose</a></li>
+            </ul>
+
+            <h2>Usage</h2>
+            <ol>
+                <li>Build and start the containers using Docker Compose:
+                    <pre><code class="bash">docker-compose up -d</code></pre>
+                    <p>The <code>-d</code> flag runs the containers in the background.</p>
+                </li>
+                <li>Open your browser and navigate to <a href="http://localhost:3000">http://localhost:3000</a> to
+                    access the
+                    Nest.js application.</li>
+                <li>Open your browser and navigate to <a href="http://localhost:8081">http://localhost:8081</a> to
+                    access
+                    MongoDB Express.
+                    <br>Username: <code>admin</code><br>
+                    Password: <code>pass</code>
+                </li>
+                <li>Stop and remove the containers:
+                    <pre><code class="bash">docker-compose down</code></pre>
+                </li>
+            </ol>
+
+            <h2>Task Explanation</h2>
+            <h3>Authentication Middleware</h3>
+            <p>The authentication middleware is implemented in the <code>AuthGuard</code> class.</p>
+            <p>It checks if a <code>sessionId</code> cookie is present in the request. If it is, it tries to find a
+                session with
+                the corresponding <code>sessionId</code> in the database.</p>
+            <p>If the session is found, the request is allowed to continue. Otherwise, the request is rejected with a
+                <code>401 Unauthorized</code> error.
+            </p>
+
+            <h3>Protected Endpoint</h3>
+            <p>The <code>/accounts</code> endpoint is a protected, the <code>AuthGuard</code> class is used as a Nest.js
+                guard.
+                It's applied to the endpoint using the <code>UseGuards</code> decorator.</p>
+
+            <h3>Public Endpoint</h3>
+            <p>The <code>/products</code> endpoint is public. It's not protected by the <code>AuthGuard</code> class.
+            </p>
+
+            <h3>Rate Limiter Middleware</h3>
+            <p>The rate limiter middleware is implemented in the <code>RateLimiterMiddleware</code> class.</p>
+            <p>It uses either a <code>sessionId</code> cookie or the client's IP address to identify the client. If the
+                session
+                ID is present in the request, it's used along with the client's IP address. Otherwise, only the client's
+                IP
+                address is used.</p>
+            <p>It uses a Sliding Window algorithm to track the number of requests made by a client. The algorithm is
+                implemented
+                in the <code>slidingWindowRateLimiter</code> function.</p>
+
+            <h4>Sliding Window Algorithm</h4>
+            <p>The algorithm uses a Redis sorted set to store the timestamps of the requests made by a client. The
+                timestamps
+                are stored as the score of the set elements.</p>
+            <p>When a request is made, the algorithm does the following:</p>
+            <ol>
+                <li>Adds the current timestamp to the sorted set.</li>
+                <li>Removes all timestamps that are older than the current timestamp minus the window size.</li>
+                <li>Counts the number of timestamps in the sorted set.</li>
+                <li>If the number of timestamps is greater than the allowed number of requests, the request is rejected
+                    with a
+                    <code>429 Too Many Requests</code> error.
+                </li>
+            </ol>
+        </div>
+    </div>
+</body>
+
+</html>
