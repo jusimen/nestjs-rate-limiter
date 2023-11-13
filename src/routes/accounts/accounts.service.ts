@@ -12,12 +12,7 @@ export class AccountsService {
   ) {}
 
   create(createAccountDto: CreateAccountDto) {
-    return this.accountModel.create({
-      accountName: 'createAccountDto.accountName',
-      accountNumber: ' createAccountDto.accountNumber',
-      amount: createAccountDto.amount,
-      currency: createAccountDto.currency,
-    });
+    return this.accountModel.create(createAccountDto);
   }
 
   findAll() {
@@ -29,7 +24,7 @@ export class AccountsService {
   }
 
   update(id: string, updateAccountDto: UpdateAccountDto) {
-    return this.accountModel.updateOne({ _id: id }, { updateAccountDto });
+    return this.accountModel.updateOne({ _id: id }, updateAccountDto);
   }
 
   remove(id: string) {
