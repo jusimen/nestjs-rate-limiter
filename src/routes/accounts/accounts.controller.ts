@@ -9,8 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { Accounts } from './accounts.model';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreateAccountDto } from './dto/create-account.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
 
 @Controller('accounts')
 @UseGuards(AuthGuard)
@@ -18,7 +19,7 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Post()
-  create(@Body() createAccountDto: Accounts) {
+  create(@Body() createAccountDto: CreateAccountDto) {
     return this.accountsService.create(createAccountDto);
   }
 
@@ -33,7 +34,7 @@ export class AccountsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAccountDto: Accounts) {
+  update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
     return this.accountsService.update(id, updateAccountDto);
   }
 

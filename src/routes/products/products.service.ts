@@ -10,7 +10,7 @@ export class ProductsService {
   ) {}
 
   create(createAccountDto: Products) {
-    return this.accountModel.create(createAccountDto);
+    return this.accountModel.create({ createAccountDto });
   }
 
   findAll() {
@@ -22,7 +22,7 @@ export class ProductsService {
   }
 
   update(id: string, updateAccountDto: Products) {
-    return this.accountModel.updateOne({ _id: id }, updateAccountDto);
+    return this.accountModel.updateOne({ _id: id }, { updateAccountDto });
   }
 
   remove(id: string) {

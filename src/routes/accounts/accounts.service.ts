@@ -1,16 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { Accounts } from './accounts.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CreateAccountDto } from './dto/create-account.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
+import { Account } from 'src/schemas/account.schema';
 
 @Injectable()
 export class AccountsService {
   constructor(
-    @InjectModel('Accounts') private readonly accountModel: Model<Accounts>,
+    @InjectModel('Accounts') private readonly accountModel: Model<Account>,
   ) {}
 
-  create(createAccountDto: Accounts) {
-    return this.accountModel.create(createAccountDto);
+  create(createAccountDto: CreateAccountDto) {
+    return this.accountModel.create({
+      accountName: 'createAccountDto.accountName',
+      accountNumber: ' createAccountDto.accountNumber',
+      amount: createAccountDto.amount,
+      currency: createAccountDto.currency,
+    });
   }
 
   findAll() {
@@ -21,8 +28,8 @@ export class AccountsService {
     return this.accountModel.findById(id);
   }
 
-  update(id: string, updateAccountDto: Accounts) {
-    return this.accountModel.updateOne({ _id: id }, updateAccountDto);
+  update(id: string, updateAccountDto: UpdateAccountDto) {
+    return this.accountModel.updateOne({ _id: id }, { updateAccountDto });
   }
 
   remove(id: string) {
