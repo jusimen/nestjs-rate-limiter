@@ -9,6 +9,7 @@ import { AccountsModule } from './routes/accounts/accounts.module';
 import { ProductsModule } from './routes/products/products.module';
 import { RateLimiterMiddleware } from './common/middleware/rate-limiter.middleware';
 import { UtilsModule } from './common/utils/utils.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UtilsModule } from './common/utils/utils.module';
     ProductsModule,
     UtilsModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
